@@ -1,0 +1,74 @@
+buildscript {
+    ext.kotlin_version = '1.3.50'
+    ext.output_directory = "D:\\Program Files\\Minecraft\\MinecraftHub\\Dav Test Server\\plugins"
+
+    repositories {
+        mavenCentral()
+        jcenter()
+        google()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
+    }
+}
+
+plugins {
+    id 'idea'
+    id "org.jetbrains.kotlin.jvm" version "1.3.50"
+    id 'com.github.johnrengelman.shadow' version '2.0.4'
+}
+
+group 'net.builders.revival.core'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    jcenter()
+
+    maven {
+        name 'Spigot'
+        url "https://hub.spigotmc.org/nexus/content/repositories/snapshots"
+    }
+
+    maven {
+        name 'Permits spigot to resist the urge to shadow'
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+
+    maven {
+        name 'Vault'
+        url "http://nexus.hc.to/content/repositories/pub_releases"
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "net.milkbowl.vault:VaultAPI:1.7+"
+    implementation 'me.lucko.luckperms:luckperms-api:4.4+'
+    implementation 'org.spigotmc:spigot-api:1.13.2-R0.1-SNAPSHOT'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+shadowJar {
+    archiveBaseName.set("BuildersRevival-Core")
+    archiveClassifier.set(null)
+
+    dependencies {
+        include(dependency('org.jetbrains.kotlin::'))
+    }
+}
+
+task copyJarToOutput(type: Copy) {
+    from shadowJar // shortcut for createJar.outputs.files
+    into "$output_directory"
+}
+
+task buildApp (dependsOn: [clean, shadowJar, copyJarToOutput])
