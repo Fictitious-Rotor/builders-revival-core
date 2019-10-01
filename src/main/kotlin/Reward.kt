@@ -1,1 +1,0 @@
-class Reward(val commandString: String, val message: String)

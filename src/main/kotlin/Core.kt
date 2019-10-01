@@ -1,4 +1,5 @@
-import me.lucko.luckperms.api.Log
+import listeners.AdvancementEarned
+import listeners.EntityKilled
 import me.lucko.luckperms.api.LuckPermsApi
 import net.milkbowl.vault.chat.Chat
 import net.milkbowl.vault.economy.Economy
@@ -7,9 +8,15 @@ import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.metadata.FixedMetadataValue
+import org.bukkit.metadata.MetadataValue
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 import java.util.logging.Logger
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
+
+private const val PLUGIN_PLAYERDATA_NAME: String = "BR-Core"
 
 class Core : JavaPlugin() {
     private val log = Logger.getLogger("Minecraft")
@@ -38,7 +45,10 @@ class Core : JavaPlugin() {
         chat = foundChat
         luckPermsApi = foundLuckPermsApi
 
-        this.server.pluginManager.registerEvents(LoginListener(econ), this)
+        setOf(LoginListener(econ),
+              AdvancementEarned(this, ::awardOnce),
+              EntityKilled(::awardOnce))
+              .forEach { this.server.pluginManager.registerEvents(it, this) }
     }
 
     private fun logError(dependencyName: String) {
@@ -51,9 +61,36 @@ class Core : JavaPlugin() {
         val userManager = luckPermsApi.userManager
         val userFuture = userManager.loadUser(uuid)
 
-        userFuture.thenAcceptAsync{ user -> user.name }
+        userFuture.thenAcceptAsync { user -> user.name }
 
+        val manager = Bukkit.getScoreboardManager()
+        val scoreboard = manager!!.newScoreboard
+        val team = scoreboard.registerNewTeam("Promotables")
 
+    }
+
+    private fun awardOnce(player: Player, toAward: AllRewards) {
+        val existingRewards = player.getMetadata(PLUGIN_PLAYERDATA_NAME)
+                                   .firstOrNull { it.owningPlugin == this }
+                                   ?.value() as Set<*>? ?: HashSet<AllRewards>() // Check if this crashes when you feed it the wrong type
+
+        val alreadyRewarded = existingRewards.any { it == toAward }
+
+        if (!alreadyRewarded) {
+            awardReward(player, toAward)
+            player.setMetadata(PLUGIN_PLAYERDATA_NAME, FixedMetadataValue(this, existingRewards.plus(toAward)))
+        }
+    }
+
+    private fun awardReward(player: Player, toAward: AllRewards) {
+        econ.depositPlayer(player, toAward.numberOfPoints)
+        player.performCommand(toAward.bonusCommand)
+        player.sendMessage(toAward.message)
+    }
+
+    private fun removeMetadataTag(player: Player) {
+        player.setMetadata(PLUGIN_PLAYERDATA_NAME, FixedMetadataValue(this, HashSet<AllRewards>()))
+        player.sendMessage("Your data has been wiped")
     }
 
     private fun setupEconomy(): Economy? {
@@ -95,6 +132,7 @@ class Core : JavaPlugin() {
             "/wand" -> { sender.sendMessage("Successfully intercepted '/wand'!"); true }
             "say" -> { sender.sendMessage("Successfully intercepted 'send'!"); true }
             "test-luck-perms" -> { testLuckPerms(); true }
+            "wipe-player" -> { removeMetadataTag(sender); true }
             else -> false
         }
     }

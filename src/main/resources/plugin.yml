@@ -16,3 +16,6 @@ commands:
 
   say:
     description: Cheeky say interception
+
+  wipe-player:
+    description: GDPR compliance

@@ -1,6 +1,5 @@
-private const val LEVEL_UP = "/grant \$player 1"
-
-enum class AllRewards(val reward: Reward) {
-    GHAST_REFLECT(Reward(LEVEL_UP, "You killed a ghast!")),
-    DEFEAT_WITHER(Reward(LEVEL_UP, "You beat the wither!"))
+enum class AllRewards(val numberOfPoints: Double, val bonusCommand: String, val message: String) {
+    GHAST_REFLECT(5.0, "","You killed a ghast!"),
+    KILL_SHULKER(15.0, "", "You killed a shulker!"),
+    MINE_32_DIAMOND_ORE(2.0, "/lottery", "You mined 32 diamonds!")
 }
