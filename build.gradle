@@ -1,6 +1,6 @@
 buildscript {
     ext.kotlin_version = '1.3.50'
-    ext.output_directory = "D:\\Program Files\\Minecraft\\MinecraftHub\\Dav Test Server\\plugins"
+    ext.output_directory = project.findProperty('OutputDirectory')
 
     repositories {
         mavenCentral()
@@ -22,6 +22,7 @@ plugins {
 
 group 'net.builders.revival.core'
 version '1.0-SNAPSHOT'
+
 
 repositories {
     mavenCentral()

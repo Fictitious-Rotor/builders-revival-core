@@ -1,23 +1,22 @@
 package listeners
 
 import AllRewards
-import Core
-import org.bukkit.Bukkit
-import org.bukkit.NamespacedKey
-import org.bukkit.entity.Player
+import LOG
+import awardOnce
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerAdvancementDoneEvent
+import java.util.logging.Level
 
-class AdvancementEarned(private val core: Core,
-                        private val awardFun: (Player, AllRewards) -> Unit) : Listener {
+class AdvancementEarned : Listener {
     @EventHandler
     fun onPlayerAdvancement(event: PlayerAdvancementDoneEvent) {
+        LOG.log(Level.INFO, "Achievement {0} has been earned!", event.advancement.key.key)
         val player = event.player
-        val advancementKey = NamespacedKey(core,"nether/return_to_sender")
 
-        if (event.advancement == Bukkit.getAdvancement(advancementKey)) {
-            awardFun(player, AllRewards.GHAST_REFLECT)
+        if (event.advancement.key.key == "nether/return_to_sender") {
+            LOG.info("Achievement is ghast reflect!")
+            awardOnce(player, AllRewards.GHAST_REFLECT)
         }
     }
 }

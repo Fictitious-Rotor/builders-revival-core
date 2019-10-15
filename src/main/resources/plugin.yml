@@ -19,3 +19,6 @@ commands:
 
   wipe-player:
     description: GDPR compliance
+
+  display-player:
+    description: View metadata behaviour
