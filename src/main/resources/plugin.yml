@@ -11,6 +11,9 @@ commands:
   test-permission:
     description: Test the permissions innit
 
+  test-luck-perms:
+    description: Test the luckperms innit
+
   /wand:
     description: Cheeky wand interception
 
@@ -22,3 +25,6 @@ commands:
 
   display-player:
     description: View metadata behaviour
+
+  luck-perms-foray:
+    description: How does this actually work?

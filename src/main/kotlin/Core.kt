@@ -61,6 +61,7 @@ class Core : JavaPlugin() {
             "test-luck-perms" -> { testLuckPerms(dependencies.luckPermsApi); true }
             "wipe-player" -> { removeMetadataTag(sender); true }
             "display-player" -> { displayMetadataTag(sender); true }
+            "luck-perms-foray" -> { calulateRank(sender); true }
             else -> false
         }
     }
