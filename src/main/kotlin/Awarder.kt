@@ -1,3 +1,4 @@
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.logging.Level
 
@@ -9,33 +10,27 @@ fun awardOnce(player: Player, toAward: AllRewards) {
     LOG.log(Level.INFO, "AlreadyRewarded: {0}", alreadyRewarded)
 
     if (!alreadyRewarded) {
-        if (awardReward(player, toAward)) {
+        if (applyReward(player, toAward)) {
             setPlayerMetadata(player, existingRewards.plus(toAward))
         }
     }
 }
 
-fun awardReward(player: Player, toAward: AllRewards): Boolean {
-    val rewardDelivered = dependencies.economy
-                                      .depositPlayer(player, toAward.numberOfPoints)
-                                      .transactionSuccess()
+fun applyReward(player: Player, toAward: AllRewards): Boolean {
+    val deposit = dependencies.economy
+                              .depositPlayer(player, toAward.numberOfPoints)
 
-    if (rewardDelivered) {
+    if (deposit.transactionSuccess() && toAward.bonusCommand != NO_COMMAND) {
+        player.sendMessage(toAward.message)
         val commandSuccessful = player.performCommand(toAward.bonusCommand)
 
         if (!commandSuccessful) {
-            LOG.warning("Command '${toAward.bonusCommand}' failed!")
-            player.sendMessage("[BR-Core] Failed to run '${toAward.bonusCommand}'. Please raise this issue with staff!")
+            LOG.warning("Failed to run '${toAward.bonusCommand}' when attempting to award ${player.name} with ${toAward.name}!")
+            player.sendMessage("[BR-Core] Failed to grant bonus command for '${toAward.name}'. Please raise this issue with staff!")
         }
-        player.sendMessage(toAward.message)
+    } else {
+        LOG.severe("Payment for reward ${toAward.name} failed to reach ${player.name} (${player.uniqueId})\nThe economy returned the following error:${deposit.errorMessage}")
     }
 
-    return rewardDelivered
-}
-
-fun calulateRank(player: Player) {
-    dependencies.luckPermsApi.userManager.getUser(player.uniqueId)!!.allNodes.forEach { LOG.info("${it.groupName} | ${it.location}") }
-//    when (dependencies.economy.getBalance(player)) {
-//        2 ->
-//    }
+    return deposit.transactionSuccess()
 }

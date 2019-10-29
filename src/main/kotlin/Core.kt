@@ -1,13 +1,13 @@
-import commands.testEconomy
-import commands.testLuckPerms
-import commands.testPermission
+import commands.debug.DisplayPlayer
+import commands.debug.LuckPermsForay
+import commands.debug.WipePlayer
+import commands.depdemos.TestEconomy
+import commands.depdemos.TestLuckPerms
+import commands.depdemos.TestPermissions
 import me.lucko.luckperms.api.LuckPermsApi
 import net.milkbowl.vault.chat.Chat
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.permission.Permission
-import org.bukkit.command.Command
-import org.bukkit.command.CommandSender
-import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.logging.Logger
 import kotlin.reflect.KClass
@@ -41,28 +41,36 @@ class Core : JavaPlugin() {
 
         CORE = this
         dependencies = Dependencies(economy, permissions, chat, luckPermsApi, this)
+
+        mapOf("test-economy" to TestEconomy(dependencies),
+              "test-permission" to TestPermissions(dependencies),
+              "test-luck-perms" to TestLuckPerms(dependencies),
+              "luck-perms-foray" to LuckPermsForay(dependencies),
+              "display-player" to DisplayPlayer(),
+              "wipe-player" to WipePlayer())
+            .forEach { getCommand(it.key)!!.setExecutor(it.value) }
     }
 
     override fun onDisable() {
         LOG.info(String.format("[%s] Disabled Version %s", description.name, description.version))
     }
 
-    override fun onCommand(sender: CommandSender, command: Command, commandLabel: String, args: Array<String>): Boolean {
-        if (sender !is Player) {
-            LOG.info("Only players are supported for this Example Plugin, but you should not do this!!!")
-            return true
-        }
-
-        return when (command.label) {
-            "test-economy" -> { testEconomy(sender, dependencies.economy); true }
-            "test-permission" -> { testPermission(sender, dependencies.permissions); true }
-            "/wand" -> { sender.sendMessage("Successfully intercepted '/wand'!"); true }
-            "say" -> { sender.sendMessage("Successfully intercepted 'send'!"); true }
-            "test-luck-perms" -> { testLuckPerms(dependencies.luckPermsApi); true }
-            "wipe-player" -> { removeMetadataTag(sender); true }
-            "display-player" -> { displayMetadataTag(sender); true }
-            "luck-perms-foray" -> { calulateRank(sender); true }
-            else -> false
-        }
-    }
+//    override fun onCommand(sender: CommandSender, command: Command, commandLabel: String, args: Array<String>): Boolean {
+//        if (sender !is Player) {
+//            LOG.info("Only players are supported for this Example Plugin, but you should not do this!!!")
+//            return true
+//        }
+//
+//        return when (command.label) {
+//            "test-economy" -> { testEconomy(sender, dependencies.economy); true }
+//            "test-permission" -> { testPermission(sender, dependencies.permissions); true }
+//            "/wand" -> { sender.sendMessage("Successfully intercepted '/wand'!"); true }
+//            "say" -> { sender.sendMessage("Successfully intercepted 'send'!"); true }
+//            "test-luck-perms" -> { testLuckPerms(dependencies.luckPermsApi); true }
+//            "wipe-player" -> { removeMetadataTag(sender); true }
+//            "display-player" -> { displayMetadataTag(sender); true }
+//            "luck-perms-foray" -> { calulateRank(sender); true }
+//            else -> false
+//        }
+//    }
 }

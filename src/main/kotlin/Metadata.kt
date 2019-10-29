@@ -8,6 +8,7 @@ fun getPlayerMetadata(player: Player): Set<*> {
                  .firstOrNull { it.owningPlugin == CORE }
                  ?.value() as Set<*>? ?: HashSet<AllRewards>() // Check if this crashes when you feed it the wrong type
 }
+
 fun setPlayerMetadata(player: Player, value: Set<*>) {
     player.setMetadata(PLUGIN_PLAYERDATA_NAME, FixedMetadataValue(CORE, value))
 }
@@ -18,5 +19,4 @@ fun displayMetadataTag(player: Player) {
 
 fun removeMetadataTag(player: Player) {
     player.setMetadata(PLUGIN_PLAYERDATA_NAME, FixedMetadataValue(CORE, HashSet<AllRewards>()))
-    player.sendMessage("Your data has been wiped")
 }
