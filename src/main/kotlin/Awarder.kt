@@ -1,24 +1,24 @@
-import org.bukkit.Bukkit
+import metadata.displayAllRewardsMetadataTag
+import metadata.getAllRewardsMetadata
+import metadata.setAllRewardsMetadata
 import org.bukkit.entity.Player
+import rewards.AllRewards
+import rewards.NO_COMMAND
 import java.util.logging.Level
 
-
 fun awardOnce(player: Player, toAward: AllRewards) {
-    val existingRewards = getPlayerMetadata(player)
+    val existingRewards = getAllRewardsMetadata(player)
     val alreadyRewarded = existingRewards.contains(toAward)
-    displayMetadataTag(player) // FOR DEBUG
+    displayAllRewardsMetadataTag(player) // FIXME FOR DEBUG
     LOG.log(Level.INFO, "AlreadyRewarded: {0}", alreadyRewarded)
 
-    if (!alreadyRewarded) {
-        if (applyReward(player, toAward)) {
-            setPlayerMetadata(player, existingRewards.plus(toAward))
-        }
+    if (!(alreadyRewarded) && applyReward(player, toAward)) {
+        setAllRewardsMetadata(player, existingRewards.plus(toAward))
     }
 }
 
 fun applyReward(player: Player, toAward: AllRewards): Boolean {
-    val deposit = dependencies.economy
-                              .depositPlayer(player, toAward.numberOfPoints)
+    val deposit = dependencies.economy.depositPlayer(player, toAward.numberOfPoints)
 
     if (deposit.transactionSuccess() && toAward.bonusCommand != NO_COMMAND) {
         player.sendMessage(toAward.message)

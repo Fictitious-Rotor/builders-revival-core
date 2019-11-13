@@ -1,3 +1,5 @@
+package rewards
+
 const val NO_COMMAND = ""
 
 enum class AllRewards(val numberOfPoints: Double, val bonusCommand: String, val message: String) {

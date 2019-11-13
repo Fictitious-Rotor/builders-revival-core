@@ -17,7 +17,7 @@ class Dependencies(val economy: Economy,
         LoginListener(economy),
         AdvancementEarned(),
         EntityKilled(),
-        BlockMined(HashMap())
+        BlockMined()
     )
 
     init { listeners.forEach { core.server.pluginManager.registerEvents(it, core) } }
