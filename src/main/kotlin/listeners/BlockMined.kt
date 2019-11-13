@@ -1,31 +1,38 @@
 package listeners
 
-import AllRewards
 import LOG
 import awardOnce
+import metadata.getMinedDiamondCountMetadata
+import metadata.setMinedDiamondCountMetadata
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
+import rewards.AllRewards
 import java.util.logging.Level
 
-const val DIAMOND_THRESHOLD = 3
+data class BreakTrigger(val triggerMaterial: Material, val threshold: Int, val reward: AllRewards)
 
-class BlockMined(private val oreCounter: HashMap<String, Int>) : Listener {
+class BlockMined : Listener {
+    private val triggers = setOf(BreakTrigger(Material.DIAMOND_ORE, 3, AllRewards.MINE_32_DIAMOND_ORE))
+
     @EventHandler
     fun onBlockBreak(event: BlockBreakEvent) {
         LOG.log(Level.INFO, "Player broke a(n) {0}", event.block.type.name)
 
-        if (event.block.type == Material.DIAMOND_ORE) {
-            val count = oreCounter[event.player.name] ?: 0
+        triggers.forEach {
+            if (event.block.type == it.triggerMaterial) {
+                val count = getMinedDiamondCountMetadata(event.player)
 
-            if (count <= DIAMOND_THRESHOLD) {
-                oreCounter[event.player.name] = count + 1
-                LOG.log(Level.INFO, "Player has broken {0} diamond ore so far", count + 1)
+                if (count <= it.threshold) {
+                    val newCount = count + 1
+                    setMinedDiamondCountMetadata(event.player, newCount)
+                    LOG.log(Level.INFO, "Player has broken {0} {1} so far", arrayOf(newCount, it.triggerMaterial))
 
-                if (count + 1 == DIAMOND_THRESHOLD) {
-                    LOG.info("Diamond threshold reached!")
-                    awardOnce(event.player, AllRewards.MINE_32_DIAMOND_ORE)
+                    if (newCount == it.threshold) {
+                        LOG.log(Level.INFO,"{0} threshold reached!", it.triggerMaterial)
+                        awardOnce(event.player, it.reward)
+                    }
                 }
             }
         }

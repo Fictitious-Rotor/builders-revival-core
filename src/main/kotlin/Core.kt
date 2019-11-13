@@ -54,23 +54,4 @@ class Core : JavaPlugin() {
     override fun onDisable() {
         LOG.info(String.format("[%s] Disabled Version %s", description.name, description.version))
     }
-
-//    override fun onCommand(sender: CommandSender, command: Command, commandLabel: String, args: Array<String>): Boolean {
-//        if (sender !is Player) {
-//            LOG.info("Only players are supported for this Example Plugin, but you should not do this!!!")
-//            return true
-//        }
-//
-//        return when (command.label) {
-//            "test-economy" -> { testEconomy(sender, dependencies.economy); true }
-//            "test-permission" -> { testPermission(sender, dependencies.permissions); true }
-//            "/wand" -> { sender.sendMessage("Successfully intercepted '/wand'!"); true }
-//            "say" -> { sender.sendMessage("Successfully intercepted 'send'!"); true }
-//            "test-luck-perms" -> { testLuckPerms(dependencies.luckPermsApi); true }
-//            "wipe-player" -> { removeMetadataTag(sender); true }
-//            "display-player" -> { displayMetadataTag(sender); true }
-//            "luck-perms-foray" -> { calulateRank(sender); true }
-//            else -> false
-//        }
-//    }
 }
