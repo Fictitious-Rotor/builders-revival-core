@@ -37,4 +37,22 @@ class BlockMined : Listener {
             }
         }
     }
+
+    private val blocks: Set<Material> = emptySet()
+    private val rewards: Map<Trigger, Set<Reward>> = emptyMap()
+
+    @EventHandler
+    fun onBlockBreak2(event: BlockBreakEvent) {
+        val material = event.block.type
+        if (!blocks.contains(material)) { return }
+
+        val count = incremenCounter(event.player, material)
+
+        val rewards = findRewards(material, count)
+        if (rewards.isEmpty()) { return }
+
+        for (reward: rewards) {
+            awardOnce(event.player, it.reward)
+        }
+    }
 }
