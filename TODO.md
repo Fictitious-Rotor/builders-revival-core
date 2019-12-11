@@ -26,7 +26,7 @@ Into a Yaml file
 Split into Triggers and Rewards
 
 Abstract it away
-Map trigger into reward, passing it through given listeners
+Map trigger into reward, passing it through given events
 
 Add in some form of unit tests to ensure that everything is working
 Add in a Yaml sanity test
@@ -34,6 +34,6 @@ Add in a Yaml sanity test
 Do the tests first, create some interfaces to see how you want it to look
 Once the tests gel well with the interfaces, then you can write the implementation.
 
-Make the listeners turn themselves off if they're not being used.
+Make the events turn themselves off if they're not being used.
 
 Use JUnit Pragmatist

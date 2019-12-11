@@ -1,17 +1,15 @@
-package listeners
+package events.advancementearned
 
 import LOG
-import awardOnce
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerAdvancementDoneEvent
-import rewards.AllRewards
+import rewards.PointReward
+import rewards.RewardBundle
 import java.util.logging.Level
 
-data class AdvancementTrigger(val advancementKey: String, val reward: AllRewards)
-
 class AdvancementEarned : Listener {
-    private val triggers = setOf(AdvancementTrigger("nether/return_to_sender", AllRewards.GHAST_REFLECT))
+    private val triggers = mapOf(AdvancementTrigger("nether/return_to_sender") to RewardBundle(setOf(PointReward(12.0)), "You got loads of points!"))
 
     @EventHandler
     fun onPlayerAdvancement(event: PlayerAdvancementDoneEvent) {
@@ -19,9 +17,8 @@ class AdvancementEarned : Listener {
         val player = event.player
 
         triggers.forEach {
-            if (event.advancement.key.key == it.advancementKey) {
-                LOG.info("Achievement is ghast reflect!")
-                awardOnce(player, it.reward)
+            if (it.key.isApplicable(event.advancement.key.key)) {
+                it.value.awardBundle(player)
             }
         }
     }

@@ -1,4 +1,4 @@
-package listeners
+package events.login
 
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.event.EventHandler

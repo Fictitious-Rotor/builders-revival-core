@@ -1,7 +1,7 @@
-import listeners.AdvancementEarned
-import listeners.EntityKilled
-import listeners.LoginListener
-import listeners.BlockMined
+import events.advancementearned.AdvancementEarned
+import events.entitykilled.EntityKilled
+import events.login.LoginListener
+import events.blockbroken.BlockMined
 import me.lucko.luckperms.api.LuckPermsApi
 import net.milkbowl.vault.chat.Chat
 import net.milkbowl.vault.economy.Economy
