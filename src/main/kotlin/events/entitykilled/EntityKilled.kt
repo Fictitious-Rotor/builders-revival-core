@@ -1,31 +1,35 @@
 package events.entitykilled
 
-import org.bukkit.Material
-import org.bukkit.entity.Player
-import org.bukkit.entity.Shulker
+import CORE
+import metadata.getPlayerMetadata
+import org.bukkit.entity.EntityType
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDeathEvent
-import rewards.ItemReward
-import rewards.PointReward
-import rewards.RewardBundle
+import org.bukkit.metadata.FixedMetadataValue
 
-class EntityKilled : Listener {
-    private val newTriggers = mapOf(MurderTrigger { it is Shulker } to RewardBundle(setOf(ItemReward(Material.ITEM_FRAME, 13), PointReward(8.0))))
+class EntityKilled(murderedMobRewardsFlows: List<MurderedMobRewardFlow>) : Listener {
+    private val rewards: Map<EntityType, List<MurderedMobRewardFlow>> = murderedMobRewardsFlows
+        .groupBy { it.condition.entityType }
+        .mapValues { it.value.sortedBy { it.condition.threshold } }
 
     @EventHandler
     fun onEntityDeath(event: EntityDeathEvent) {
         val entity = event.entity
+        val entityType = event.entityType
+        val player = entity.killer ?: return
 
-        newTriggers.forEach {
-            if (it.key.isApplicable(entity)) {
-                val entityEvent = entity.lastDamageCause as EntityDamageByEntityEvent
+        val rewardFlows = rewards[entityType]
 
-                if (entityEvent.damager is Player) {
-                    it.value.awardBundle(entityEvent.damager as Player)
-                }
-            }
+        if (rewardFlows != null) {
+            val playerCounters = getPlayerMetadata(player, EntityKilledCountRepositoryName) as? CountersWrapper ?: CountersWrapper(mutableMapOf())
+            val count = playerCounters.allCounters[entityType] ?: 0
+
+            val applicableReward = rewardFlows.find { it.condition.surpassesThreshold(entity, count) }
+            applicableReward?.rewards?.awardBundle(player)
+
+            if (count < Int.MAX_VALUE) { playerCounters.allCounters[entityType] = count + 1 }
+            player.setMetadata(EntityKilledCountRepositoryName, FixedMetadataValue(CORE, playerCounters))
         }
     }
 }

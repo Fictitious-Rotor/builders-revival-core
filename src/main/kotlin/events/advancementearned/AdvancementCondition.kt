@@ -1,6 +1,8 @@
 package events.advancementearned
 
-class AdvancementTrigger(private val advancementKey: String) {
+import events.Condition
+
+class AdvancementCondition(val advancementKey: String) : Condition {
     fun isApplicable(advancementKey: String) : Boolean {
         return advancementKey == this.advancementKey
     }
